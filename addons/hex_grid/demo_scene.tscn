@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://addons/hex_grid/hex_grid.gd" type="Script" id=1]
 [ext_resource path="res://addons/hex_grid/materials/vertex_colour_mat.tres" type="Material" id=2]
 [ext_resource path="res://addons/hex_grid/camera_control.gd" type="Script" id=3]
+[ext_resource path="res://addons/hex_grid/noise.png" type="Texture" id=4]
 
 [sub_resource type="BoxShape" id=1]
 extents = Vector3( 30, 0.01, 30 )
@@ -12,6 +13,8 @@ extents = Vector3( 30, 0.01, 30 )
 [node name="HexGrid" type="MeshInstance" parent="."]
 material_override = ExtResource( 2 )
 script = ExtResource( 1 )
+blended_res = 3
+irregular_noise = ExtResource( 4 )
 colors = [ Color( 0.176471, 0.545098, 0.133333, 1 ), Color( 0.184314, 0.560784, 0.807843, 1 ), Color( 0.72549, 0.717647, 0.247059, 1 ) ]
 
 [node name="PlayerControl" type="Spatial" parent="."]

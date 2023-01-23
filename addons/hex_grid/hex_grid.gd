@@ -7,10 +7,12 @@ export var show_cords : bool = true
 export var elevation : bool = true
 export var elevation_step : float = 0.2
 export var blend_hexes : bool = true
+export var blended_res: int = 1
 export var terranced_edges : bool = true
 export var terrances_per_slope : int = 2
 export var irregular : bool = true
-var noise_irregular := OpenSimplexNoise.new()
+export var irregular_noise : Texture = null
+onready var irregular_noise_image : Image = irregular_noise.get_data() if irregular_noise != null else null
 export(Array) var colors
 # {cords : Vector2, cell : HexCell}
 export var cells := {}
@@ -18,13 +20,14 @@ export var cells := {}
 var label_holder := Node.new()
 
 func _ready():
+	# Labels
 	label_holder.name = "Labels"
 	add_child(label_holder)
 	
 	var pos1 = VectorHex.new(5, 7)
 	var pos2 = VectorHex.new(11, 9)
-	var world_pos = Vector3(9.526279, 0, 10.5)
-	var world_pos2 = Vector3(19.918585, 0, 13.5)
+	var world_pos = Vector3(9.526279, 0, 10.5) * HexMetrics.outer_radius
+	var world_pos2 = Vector3(19.918585, 0, 13.5) * HexMetrics.outer_radius
 	assert(pos1.to_grid_cords() == Vector2(5, 7))
 	assert(pos2.to_grid_cords() == Vector2(11, 9))
 	assert(HexMetrics.cell_world_pos(5, 7).is_equal_approx(world_pos))
@@ -49,6 +52,7 @@ func _ready():
 
 
 func load_cells():
+	seed(0)
 	for x in width:
 		for y in height:
 			create_cell(VectorHex.new(x, y))
@@ -65,14 +69,20 @@ func render():
 	clear()
 	load_cells()
 	mesh = create_mesh()
+	if irregular:
+		irregular_noise_image.unlock()
 
 
 func create_mesh() -> ArrayMesh:
 	var st = HexSurfaceTool.new()
 	st.blended = blend_hexes
+	st.hex_resolution = blended_res
 	st.elevation = elevation
 	st.elevation_step = elevation_step
 	st.terranced_edges = terranced_edges
+	if irregular:
+		irregular_noise_image.lock()
+		st.irregular_noise = irregular_noise_image
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	
 	for x in width:
@@ -118,3 +128,7 @@ func set_cell_neighbors(cell : HexCell):
 		var neighbor_cords = cell.cords.get_neighbor(dir)
 		if cells.has(neighbor_cords):
 			cell.set_neighbor(dir, cells[neighbor_cords])
+
+
+func sample_noise(noise : Texture):
+	return noise

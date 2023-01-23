@@ -5,7 +5,7 @@ enum Directions {NE, E, SE, SW, W, NW}
 
 const outer_radius : float = 1.0
 const inner_radius : float = outer_radius * 0.866025404;
-const solid_factor : float = 0.75
+const solid_factor : float = 0.8
 const blend_factor : float = 1.0 - solid_factor
 enum Edge_types {Flat, Slope, Cliff}
 
@@ -21,6 +21,9 @@ const terrances_per_slope : int = 2
 const terrance_steps : int = terrances_per_slope * 2 + 1
 const horizontal_terrace_step_size = 1.0 / terrance_steps
 const vertical_terrace_step_size = 1.0 / (terrances_per_slope + 1)
+const cell_perturb_strength := 0.5
+#const cell_elevation_perturb_strength := 0.3
+const noise_scale = 2
 
 static func cell_world_pos(x : float, z : float) -> Vector3:
 	return Vector3((x + z * 0.5 - int(z / 2)) * (inner_radius * 2), 0, z * (outer_radius * 1.5))
@@ -79,3 +82,8 @@ static func get_edge_type(elevation1, elevation2):
 	if delta == 1:
 		return Edge_types.Slope
 	return Edge_types.Cliff
+
+
+static func sample_noise(source : Image, x : float, z : float) -> Vector3:
+	var color = source.get_pixel(abs(x * noise_scale), abs(z * noise_scale))
+	return Vector3(color.r, color.g, color.b)
